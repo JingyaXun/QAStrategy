@@ -31,7 +31,7 @@ class QAStrategyStockBase(QAStrategyCTABase):
                  start='2019-01-01', end='2019-10-21', send_wx=False, market_type='stock_cn',
                  data_host=eventmq_ip, data_port=eventmq_port, data_user=eventmq_username, data_password=eventmq_password,
                  trade_host=eventmq_ip, trade_port=eventmq_port, trade_user=eventmq_username, trade_password=eventmq_password,
-                 taskid=None, mongo_ip=mongo_ip):
+                 taskid=None, mongo_ip=mongo_ip, buy_vol_max=10, sell_vol_max=10):
         super().__init__(code=code, frequence=frequence, strategy_id=strategy_id, risk_check_gap=risk_check_gap, portfolio=portfolio,
                          start=start, end=end, send_wx=send_wx,
                          data_host=eventmq_ip, data_port=eventmq_port, data_user=eventmq_username, data_password=eventmq_password,
@@ -40,6 +40,12 @@ class QAStrategyStockBase(QAStrategyCTABase):
 
         self.code = code
         self.send_wx = send_wx
+        self.new_round = True
+        self.info = {}
+        self.buy_vol_max = buy_vol_max
+        self.sell_vol_max = sell_vol_max
+        self.buy_vol_aval = buy_vol_max
+        self.sell_vol_aval = sell_vol_max
 
     def subscribe_data(self, code, frequence, data_host, data_port, data_user, data_password):
         """[summary]
@@ -124,7 +130,7 @@ class QAStrategyStockBase(QAStrategyCTABase):
         self.subscriber_client = self.database.subscribe
 
         self.acc = QIFI_Account(
-            username=self.strategy_id, password=self.strategy_id, trade_host=mongo_ip)
+            username=self.strategy_id, password=self.strategy_id, trade_host=mongo_ip, moneypreset=6000000)
         self.acc.initial()
 
         self.pub = publisher_routing(exchange='QAORDER_ROUTER', host=self.trade_host,

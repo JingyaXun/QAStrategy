@@ -184,7 +184,8 @@ class QAStrategyCTABase():
         self.acc = port.new_accountpro(
             account_cookie=self.strategy_id, init_cash=self.init_cash, market_type=self.market_type)
         self.positions = self.acc.get_position(self.code)
-
+        print("initialize trading accound !!!")
+        print("init cash: ", self.init_cash)
         print(self.acc)
         print(self.acc.market_type)
         data = QA.QA_quotation(self.code.upper(), self.start, self.end, source=QA.DATASOURCE.MONGO,
