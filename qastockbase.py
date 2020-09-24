@@ -31,7 +31,7 @@ class QAStrategyStockBase(QAStrategyCTABase):
                  start='2019-01-01', end='2019-10-21', send_wx=False, market_type='stock_cn',
                  data_host=eventmq_ip, data_port=eventmq_port, data_user=eventmq_username, data_password=eventmq_password,
                  trade_host=eventmq_ip, trade_port=eventmq_port, trade_user=eventmq_username, trade_password=eventmq_password,
-                 taskid=None, mongo_ip=mongo_ip, buy_vol_max=10, sell_vol_max=10):
+                 taskid=None, mongo_ip=mongo_ip, data={} buy_vol_max=10, sell_vol_max=10):
         super().__init__(code=code, frequence=frequence, strategy_id=strategy_id, risk_check_gap=risk_check_gap, portfolio=portfolio,
                          start=start, end=end, send_wx=send_wx,
                          data_host=eventmq_ip, data_port=eventmq_port, data_user=eventmq_username, data_password=eventmq_password,
@@ -41,6 +41,7 @@ class QAStrategyStockBase(QAStrategyCTABase):
         self.code = code
         self.send_wx = send_wx
         self.new_round = True
+        self.data = data
         self.info = {}
         self.buy_vol_max = buy_vol_max
         self.sell_vol_max = sell_vol_max
@@ -218,6 +219,7 @@ class QAStrategyStockBase(QAStrategyCTABase):
                 order = self.acc.send_order(
                     code=code, towards=towards, price=price, amount=volume, order_id=order_id)
                 order['topic'] = 'send_order'
+                #print("order status: ", order)
                 self.pub.pub(
                     json.dumps(order), routing_key=self.strategy_id)
 
@@ -242,7 +244,6 @@ class QAStrategyStockBase(QAStrategyCTABase):
                 QA.QA_util_log_info('failed in ORDER_CHECK')
 
         elif self.running_mode == 'backtest':
-
             self.bar_order['{}_{}'.format(direction, offset)] = self.bar_id
 
             self.acc.receive_simpledeal(
